@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jornal IFNMG</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:      #2f8f41;
+  --green-dark: #1e6b2e;
+  --green-light:#e8f5eb;
+  --red:        #cc1d24;
+  --red-light:  #fdecea;
+  --bg:         #f4f5f0;
+  --surface:    #ffffff;
+  --border:     #e2e4dc;
+  --text:       #1a1d16;
+  --muted:      #6b7063;
+  --sidebar-w:  240px;
+  /* team colors - overrideable */
+  --c-video:      #6c3fc5; --cbg-video:      #f0ebff;
+  --c-midia:      #0ea5c4; --cbg-midia:      #e8f7fb;
+  --c-foto:       #d97706; --cbg-foto:       #fff8eb;
+  --c-entrevista: #dc4c3e; --cbg-entrevista: #fdecea;
+  --c-redacao:    #2563eb; --cbg-redacao:    #eff3ff;
+  --c-coord:      #2f8f41; --cbg-coord:      #e8f5eb;
+}
+
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+h1,h2,h3,h4,h5{font-family:'Syne',sans-serif}
+
+/* AUTH Custom Layout */
+#auth-screen{position:fixed;inset:0;background:var(--green-dark);display:flex;align-items:center;justify-content:center;z-index:200;overflow-y:auto;padding:2rem 1rem}
+.auth-logo{width:56px;height:56px;background:white;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--green);letter-spacing:-1px}
+
+/* APP Custom Layout */
+#app{display:none;flex:1;height:100vh;overflow:hidden}
+#app.active{display:flex}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);background:var(--green-dark);display:flex;flex-direction:column;flex-shrink:0;transition:transform .25s ease;z-index:50}
+.sb-brand{padding:1.4rem 1.2rem .9rem;display:flex;align-items:center;gap:.7rem;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-logo{width:34px;height:34px;background:white;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:11px;color:var(--green-dark);flex-shrink:0}
+.sb-brand-text h1{color:white;font-size:.82rem;font-weight:700;letter-spacing:2px; margin:0}
+.sb-brand-text p{font-size:.62rem;color:rgba(255,255,255,.45);margin-top:1px; margin-bottom:0}
+.sb-user{padding:.8rem 1.1rem;display:flex;align-items:center;gap:.6rem;background:rgba(0,0,0,.15);border-bottom:1px solid rgba(255,255,255,.06)}
+.sb-avatar{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:white;flex-shrink:0}
+.sb-user-info .uname{font-size:.78rem;font-weight:500;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
+.sb-role{display:inline-block;font-size:.62rem;padding:1px 6px;border-radius:4px;font-weight:500;margin-top:2px;white-space:nowrap}
+.sb-nav{flex:1;padding:.6rem .7rem;overflow-y:auto}
+.nav-sect{font-size:.58rem;font-weight:600;letter-spacing:1.5px;color:rgba(255,255,255,.3);text-transform:uppercase;padding:.7rem .5rem .3rem}
+.nav-item{display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;border-radius:9px;cursor:pointer;color:rgba(255,255,255,.6);font-size:.82rem;font-weight:400;margin-bottom:2px;transition:.15s;border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif}
+.nav-item svg{flex-shrink:0;opacity:.65}
+.nav-item:hover{background:rgba(255,255,255,.08);color:white}
+.nav-item:hover svg{opacity:1}
+.nav-item.active{background:rgba(255,255,255,.14);color:white;font-weight:500}
+.nav-item.active svg{opacity:1}
+.sb-foot{padding:.65rem .7rem;border-top:1px solid rgba(255,255,255,.08)}
+.sb-foot .nav-item{color:rgba(255,255,255,.38);font-size:.78rem}
+.sb-foot .nav-item:hover{color:white}
+.logout{color:rgba(255,100,100,.7)!important}
+.logout:hover{background:rgba(255,80,80,.1)!important;color:rgba(255,140,140,1)!important}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:54px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1.4rem;gap:.9rem;flex-shrink:0}
+.topbar-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700}
+.top-search{flex:1;max-width:300px;margin-left:auto;display:flex;align-items:center;gap:.45rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.38rem .75rem}
+.top-search input{border:none;background:none;outline:none;font-family:'DM Sans',sans-serif;font-size:.83rem;color:var(--text);width:100%}
+.top-actions{display:flex;align-items:center;gap:.4rem;margin-left:.4rem}
+.icon-btn{width:32px;height:32px;border-radius:7px;border:1px solid var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);position:relative;transition:.15s}
+.icon-btn:hover{background:var(--bg);color:var(--text)}
+.notif-dot{position:absolute;top:-1px;right:-1px;width:7px;height:7px;background:var(--red);border-radius:50%;border:2px solid white;display:none}
+.content{flex:1;overflow-y:auto;padding:1.4rem}
+
+/* VIEWS */
+.view{display:none}
+.view.active{display:block}
+
+/* PAGE HEADER */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.4rem;flex-wrap:wrap;gap:.7rem}
+.ph h2{font-size:1.35rem;font-weight:700; margin-bottom:0}
+.ph p{font-size:.82rem;color:var(--muted);margin-top:2px}
+
+/* CALENDAR */
+.cal-wrap{background:var(--surface);border:1px solid var(--border);border-radius:13px;overflow:hidden;margin-top:.5rem}
+.cal-hrow{display:grid;grid-template-columns:repeat(7,1fr);background:var(--bg);border-bottom:1px solid var(--border)}
+.cal-dh{text-align:center;font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:.55rem 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.cal-cell{min-height:100px;padding:3px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:2px}
+.cal-cell:nth-child(7n){border-right:none}
+.cal-cell.other{background:#fafaf8}
+.day-num{font-size:.76rem;font-weight:500;color:var(--muted);text-align:right;padding:2px 4px;line-height:1}
+.day-num.today{background:var(--green);color:white;border-radius:5px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;margin-left:auto;font-size:.7rem}
+.ev-chip{font-size:.65rem;font-weight:500;padding:2px 5px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:opacity .15s;color:white}
+.ev-chip:hover{opacity:.75}
+.cal-nav{display:flex;align-items:center;gap:.3rem;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:.2rem}
+.cal-nav button{background:none;border:none;cursor:pointer;color:var(--muted);padding:.25rem .45rem;border-radius:5px;transition:.15s;font-size:.9rem}
+.cal-nav button:hover{background:var(--bg);color:var(--text)}
+.cal-nav span{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:600;min-width:130px;text-align:center}
+
+/* KANBAN */
+.kanban-board{display:flex;gap:.9rem;overflow-x:auto;padding-bottom:1rem;align-items:flex-start}
+.k-col{min-width:270px;max-width:290px;background:var(--surface);border:1px solid var(--border);border-radius:13px;overflow:hidden;flex-shrink:0}
+.k-col-head{padding:.8rem .95rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.k-col-head h3{font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:.45rem; margin:0}
+.col-dot{width:7px;height:7px;border-radius:50%}
+.col-count{font-size:.72rem;color:var(--muted);background:var(--bg);padding:1px 7px;border-radius:9px}
+.k-cards{padding:.65rem;display:flex;flex-direction:column;gap:.55rem;min-height:72px}
+.task-card{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:.7rem;transition:box-shadow .15s}
+.task-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.task-badge{display:inline-flex;align-items:center;gap:3px;font-size:.65rem;font-weight:600;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:.45rem}
+.task-card h4{font-size:.82rem;font-weight:600;margin-bottom:.2rem}
+.task-card p{font-size:.75rem;color:var(--muted);line-height:1.4; margin-bottom:0}
+.task-actions{display:flex;gap:.35rem;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border)}
+.tmv{font-size:.7rem;padding:.2rem .5rem;border-radius:5px;border:1px solid var(--border);background:white;cursor:pointer;color:var(--muted);transition:.12s;font-family:'DM Sans',sans-serif}
+.tmv:hover{background:var(--bg);color:var(--text)}
+.tdel{margin-left:auto;color:var(--red)!important;border-color:rgba(204,29,36,.2)!important}
+.tdel:hover{background:var(--red-light)!important}
+
+/* TEAM */
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.9rem}
+.member-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:1rem;display:flex;align-items:center;gap:.85rem}
+.m-avatar{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:white;flex-shrink:0}
+.m-name{font-weight:600;font-size:.87rem}
+.m-email{font-size:.72rem;color:var(--muted);margin-top:2px}
+.m-role{display:inline-flex;align-items:center;gap:3px;font-size:.68rem;font-weight:500;padding:2px 7px;border-radius:4px;margin-top:5px}
+.hier-badge{display:inline-block;font-size:.62rem;font-weight:600;padding:1px 6px;border-radius:4px;margin-left:4px;vertical-align:middle}
+.hb-sa{background:#fff3cd;color:#664d03}
+.hb-pr{background:#d1e7dd;color:#0a3622}
+.hb-li{background:#cfe2ff;color:#0842a0}
+.hb-mb{background:#e2e3e5;color:#41464b}
+
+/* NOTIFS */
+.notif-list{display:flex;flex-direction:column;gap:.6rem;max-width:660px}
+.notif-item{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:.85rem;display:flex;align-items:flex-start;gap:.8rem;cursor:pointer;transition:.15s}
+.notif-item:hover{border-color:#ccc}
+.notif-item.unread{border-left:3px solid var(--green)}
+.notif-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.notif-title{font-size:.83rem;font-weight:600}
+.notif-text{font-size:.77rem;color:var(--muted);margin-top:2px;line-height:1.4}
+.notif-time{font-size:.68rem;color:var(--muted);margin-top:4px}
+
+/* ADMIN CUSTOM ADJUSTMENTS */
+.s-pill{display:inline-block;font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:20px}
+.s-active{background:var(--green-light);color:var(--green-dark)}
+.s-suspended{background:var(--red-light);color:var(--red)}
+
+/* SETTINGS */
+.s-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:1.4rem;max-width:580px;margin-bottom:1rem}
+.s-card h3{font-size:.95rem;font-weight:700;margin-bottom:1.1rem;padding-bottom:.7rem;border-bottom:1px solid var(--border)}
+.s-row{display:flex;align-items:center;justify-content:space-between;padding:.6rem 0;border-bottom:1px solid var(--border);gap:.5rem}
+.s-row:last-child{border-bottom:none}
+.s-lbl{font-size:.83rem;font-weight:500}
+.s-desc{font-size:.73rem;color:var(--muted);margin-top:2px}
+.toggle{width:38px;height:21px;background:var(--border);border-radius:11px;position:relative;cursor:pointer;transition:background .2s;border:none;flex-shrink:0}
+.toggle.on{background:var(--green)}
+.toggle::after{content:'';position:absolute;width:15px;height:15px;border-radius:50%;background:white;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on::after{transform:translateX(17px)}
+
+.color-row{display:flex;align-items:center;gap:.6rem;padding:.55rem 0;border-bottom:1px solid var(--border)}
+.color-row:last-child{border-bottom:none}
+.color-row label{font-size:.83rem;font-weight:500;flex:1}
+.color-picker-wrap{display:flex;align-items:center;gap:.45rem}
+.color-picker-wrap input[type=color]{width:36px;height:28px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;padding:1px;background:white}
+.color-preview{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:white}
+
+/* TEAM CHECKS FOR MODALS */
+.team-checks{display:flex;flex-wrap:wrap;gap:.45rem}
+.tc-lbl{display:flex;align-items:center;gap:4px;padding:3px 9px 3px 7px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-size:.76rem;font-weight:500;transition:.15s;user-select:none}
+.tc-lbl input{display:none}
+.tc-dot{width:7px;height:7px;border-radius:50%}
+.tc-lbl:has(input:checked){border-color:var(--green);background:var(--green-light)}
+
+/* TOAST */
+#toast{position:fixed;bottom:1.4rem;right:1.4rem;background:var(--text);color:white;padding:.65rem 1rem;border-radius:9px;font-size:.83rem;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.2);transform:translateY(70px);opacity:0;transition:.3s;z-index:9999;pointer-events:none}
+#toast.show{transform:translateY(0);opacity:1}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--muted)}
+.empty p{font-size:.82rem}
+
+/* MOBILE */
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40}
+.menu-btn{display:none}
+@media(max-width:768px){
+  .sidebar{position:fixed;inset-y:0;left:0;transform:translateX(-100%);z-index:50}
+  .sidebar.open{transform:translateX(0)}
+  .sb-overlay.open{display:block}
+  .menu-btn{display:flex}
+  .top-search{display:none}
+  .content{padding:1rem}
+  .team-grid{grid-template-columns:1fr}
+}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* Substituindo botões antigos pelo Success do Bootstrap com a sua cor */
+.btn-success { background-color: var(--green); border-color: var(--green); }
+.btn-success:hover, .btn-success:active, .btn-success:focus { background-color: var(--green-dark) !important; border-color: var(--green-dark) !important; }
+</style>
+</head>
+<body>
+
+<div id="auth-screen">
+  <div class="card shadow-lg border-0" style="width: 100%; max-width: 420px; border-radius: 20px; overflow: hidden;">
+    <div class="card-header border-0 py-4" style="background: var(--green); text-align: center;">
+      <div class="auth-logo">JN</div>
+      <h1 class="text-white mb-0" style="font-size: 1.4rem; letter-spacing: 4px; font-weight: 700;">JORNAL IFNMG</h1>
+      <p class="mb-0 mt-1 text-white-50" style="font-size: .78rem;">Portal da Equipe de Comunicação</p>
+    </div>
+    <div class="card-body p-4">
+      <h2 id="auth-title" style="font-size: 1.05rem; font-weight: 600; margin-bottom: 1.4rem;">Faça login para continuar</h2>
+      
+      <div id="reg-fields" style="display:none">
+        <div class="mb-3">
+            <label class="form-label text-muted small fw-medium mb-1">Nome Completo</label>
+            <input id="a-name" type="text" class="form-control" placeholder="Seu nome completo">
+        </div>
+        <div class="mb-3">
+            <label class="form-label text-muted small fw-medium mb-1">Função / Equipe</label>
+            <select id="a-role" class="form-select">
+                <option value="video">Edição de Vídeo</option>
+                <option value="midia">Redes Sociais / Mídia</option>
+                <option value="foto">Fotografia</option>
+                <option value="entrevista">Entrevista / Reportagem</option>
+                <option value="redacao">Redação / Roteiro</option>
+                <option value="coord">Coordenação</option>
+            </select>
+        </div>
+      </div>
+      
+      <div class="mb-3">
+          <label class="form-label text-muted small fw-medium mb-1">Email Institucional</label>
+          <input id="a-email" type="email" class="form-control" placeholder="nome@aluno.ifnmg.edu.br">
+      </div>
+      <div class="mb-4">
+          <label class="form-label text-muted small fw-medium mb-1">Senha</label>
+          <input id="a-pass" type="password" class="form-control" placeholder="••••••••">
+      </div>
+      
+      <button class="btn btn-success w-100 fw-bold py-2 mb-3" onclick="doAuth()" id="auth-btn">Entrar</button>
+      
+      <p class="text-center text-muted small mb-1">
+        <span id="at-text">Não faz parte do jornal?</span>
+        <button id="at-btn" class="btn btn-link text-danger p-0 fw-bold text-decoration-none ms-1" style="font-size: .83rem;" onclick="toggleMode()">Cadastre-se</button>
+      </p>
+      <p class="text-center text-muted opacity-75" style="font-size: .72rem; margin-bottom: 0;">Teste: ana@ifnmg.edu.br / ana123</p>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<div id="app">
+  <div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo">JN</div>
+      <div class="sb-brand-text"><h1>JORNAL IFNMG</h1><p>Portal da Equipe</p></div>
+    </div>
+    <div class="sb-user">
+      <div class="sb-avatar" id="sb-av">A</div>
+      <div class="sb-user-info">
+        <div class="uname" id="sb-name">—</div>
+        <span class="sb-role" id="sb-role"></span>
+      </div>
+    </div>
+    <nav class="sb-nav" id="sb-nav"></nav>
+    <div class="sb-foot">
+      <button class="nav-item" onclick="switchView('settings')">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Configurações
+      </button>
+      <button class="nav-item logout" onclick="logout()">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sair
+      </button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" onclick="openSidebar()">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <span class="topbar-title" id="topbar-title">Agenda Geral</span>
+      <div class="top-search">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Pesquisar…" oninput="doSearch(this.value)">
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" onclick="switchView('notifications')">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-dot" id="notif-dot"></span>
+        </button>
+      </div>
+    </header>
+
+    <div class="content" id="content">
+
+      <div class="view active" id="view-calendar">
+        <div class="ph">
+          <div><h2>Agenda Geral</h2><p>Todos os eventos do jornal</p></div>
+          <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+            <div class="cal-nav"><button onclick="chMonth(-1)">&#8249;</button><span id="cal-lbl"></span><button onclick="chMonth(1)">&#8250;</button></div>
+            <button class="btn btn-success d-flex align-items-center gap-1" id="btn-add-ev" onclick="openModal('m-event')" style="display:none">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Criar Evento
+            </button>
+          </div>
+        </div>
+        <div class="cal-wrap">
+          <div class="cal-hrow"><div class="cal-dh">Dom</div><div class="cal-dh">Seg</div><div class="cal-dh">Ter</div><div class="cal-dh">Qua</div><div class="cal-dh">Qui</div><div class="cal-dh">Sex</div><div class="cal-dh">Sáb</div></div>
+          <div class="cal-grid" id="cal-grid"></div>
+        </div>
+      </div>
+
+      <div class="view" id="view-my-cal">
+        <div class="ph">
+          <div><h2>Minha Agenda</h2><p id="my-cal-sub">Eventos da sua equipe</p></div>
+          <div class="cal-nav"><button onclick="chMonthMy(-1)">&#8249;</button><span id="my-cal-lbl"></span><button onclick="chMonthMy(1)">&#8250;</button></div>
+        </div>
+        <div class="cal-wrap">
+          <div class="cal-hrow"><div class="cal-dh">Dom</div><div class="cal-dh">Seg</div><div class="cal-dh">Ter</div><div class="cal-dh">Qua</div><div class="cal-dh">Qui</div><div class="cal-dh">Sex</div><div class="cal-dh">Sáb</div></div>
+          <div class="cal-grid" id="my-cal-grid"></div>
+        </div>
+      </div>
+
+      <div class="view" id="view-tasks">
+        <div class="ph">
+          <div><h2>Demandas</h2><p id="tasks-sub">Quadro de tarefas</p></div>
+          <button class="btn btn-danger d-flex align-items-center gap-1" id="btn-add-task" onclick="openModal('m-task')" style="display:none">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Nova Demanda
+          </button>
+        </div>
+        <div id="task-filter-bar" style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem"></div>
+        <div class="kanban-board">
+          <div class="k-col"><div class="k-col-head"><h3><span class="col-dot" style="background:#ef4444"></span>A Fazer</h3><span class="col-count" id="cnt-todo">0</span></div><div class="k-cards" id="col-todo"></div></div>
+          <div class="k-col"><div class="k-col-head"><h3><span class="col-dot" style="background:#f59e0b"></span>Em Andamento</h3><span class="col-count" id="cnt-doing">0</span></div><div class="k-cards" id="col-doing"></div></div>
+          <div class="k-col"><div class="k-col-head"><h3><span class="col-dot" style="background:#22c55e"></span>Concluído</h3><span class="col-count" id="cnt-done">0</span></div><div class="k-cards" id="col-done"></div></div>
+        </div>
+      </div>
+
+      <div class="view" id="view-team">
+        <div class="ph"><div><h2>Equipe</h2><p>Membros e contatos</p></div></div>
+        <div class="team-grid" id="team-grid"></div>
+      </div>
+
+      <div class="view" id="view-notifications">
+        <div class="ph">
+          <div><h2>Notificações</h2><p>Avisos e atualizações</p></div>
+          <button class="btn btn-outline-secondary btn-sm" onclick="markAllRead()">Marcar todas como lidas</button>
+        </div>
+        <div class="notif-list" id="notif-list"></div>
+      </div>
+
+      <div class="view" id="view-admin">
+        <div class="ph">
+          <div><h2>Administração</h2><p>Gerenciar usuários e acessos</p></div>
+          <button class="btn btn-success d-flex align-items-center gap-1" onclick="openModal('m-user')">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Criar Login
+          </button>
+        </div>
+        <div class="card shadow-sm border-0 mb-4" style="border-radius:13px;overflow:hidden;">
+          <div class="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between">
+              <h3 class="h6 mb-0 fw-bold">Usuários do Sistema</h3>
+              <span id="admin-cnt" class="text-muted small"></span>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-uppercase text-muted" style="font-size: .75rem; letter-spacing: .5px">Nome</th>
+                        <th class="text-uppercase text-muted" style="font-size: .75rem; letter-spacing: .5px">Email</th>
+                        <th class="text-uppercase text-muted" style="font-size: .75rem; letter-spacing: .5px">Equipe</th>
+                        <th class="text-uppercase text-muted" style="font-size: .75rem; letter-spacing: .5px">Nível</th>
+                        <th class="text-uppercase text-muted" style="font-size: .75rem; letter-spacing: .5px">Status</th>
+                        <th class="text-uppercase text-muted" style="font-size: .75rem; letter-spacing: .5px">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="view" id="view-settings">
+        <div class="ph"><div><h2>Configurações</h2><p>Personalização e preferências</p></div></div>
+
+        <div class="s-card">
+          <h3>Notificações</h3>
+          <div class="s-row"><div><div class="s-lbl">Avisos no site</div><div class="s-desc">Receber notificações dentro do portal</div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+          <div class="s-row"><div><div class="s-lbl">Email institucional</div><div class="s-desc">Cópias para @ifnmg.edu.br</div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+        </div>
+
+        <div class="s-card" id="team-color-card" style="display:none">
+          <h3>Cores das Equipes</h3>
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:1rem">Escolha a cor de cada equipe no sistema.</p>
+          <div id="team-color-rows"></div>
+          <div style="margin-top:1rem;display:flex;justify-content:flex-end;gap:.5rem">
+            <button class="btn btn-outline-secondary btn-sm" onclick="resetTeamColors()">Restaurar padrão</button>
+            <button class="btn btn-success btn-sm" onclick="applyTeamColors()">Salvar cores</button>
+          </div>
+        </div>
+
+        <div class="s-card">
+          <h3>Sobre</h3>
+          <div class="s-row"><div class="s-lbl">Versão</div><span style="font-size:.78rem;color:var(--muted)">1.1.0 — Jornal IFNMG</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="m-event" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow" style="border-radius: 15px;">
+      <div class="modal-header border-bottom-0 pb-0">
+        <h5 class="modal-title fw-bold">Criar Evento</h5>
+        <button type="button" class="btn-close" onclick="closeModal('m-event')"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+            <label class="form-label text-muted small fw-medium mb-1">Título</label>
+            <input id="ev-title" type="text" class="form-control" placeholder="Ex: Cobertura Feira de Ciências">
+        </div>
+        <div class="mb-3">
+            <label class="form-label text-muted small fw-medium mb-1">Data</label>
+            <input id="ev-date" type="date" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label class="form-label text-muted small fw-medium mb-1">Local / Descrição</label>
+            <textarea id="ev-desc" rows="2" class="form-control" placeholder="Onde, detalhes…"></textarea>
+        </div>
+        <div class="mb-2">
+            <label class="form-label text-muted small fw-medium mb-1">Equipes necessárias</label>
+            <div class="team-checks" id="ev-checks"></div>
+        </div>
+      </div>
+      <div class="modal-footer border-top-0 pt-0">
+        <button class="btn btn-outline-secondary" onclick="closeModal('m-event')">Cancelar</button>
+        <button class="btn btn-success" onclick="saveEvent()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="m-task" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow" style="border-radius: 15px;">
+      <div class="modal-header border-bottom-0 pb-0">
+        <h5 class="modal-title fw-bold">Nova Demanda</h5>
+        <button type="button" class="btn-close" onclick="closeModal('m-task')"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+            <label class="form-label text-muted small fw-medium mb-1">Título</label>
+            <input id="tk-title" type="text" class="form-control" placeholder="O que precisa ser feito?">
+        </div>
+        <div class="mb-3">
+            <label class="form-label text-muted small fw-medium mb-1">Instruções</label>
+            <textarea id="tk-desc" rows="3" class="form-control" placeholder="Detalhes da tarefa…"></textarea>
+        </div>
+        <div class="mb-2">
+            <label class="form-label text-muted small fw-medium mb-1">Equipe responsável</label>
+            <select id="tk-team" class="form-select">
+              <option value="video">Edição de Vídeo</option>
+              <option value="midia">Redes Sociais / Mídia</option>
+              <option value="foto">Fotografia</option>
+              <option value="entrevista">Entrevista / Reportagem</option>
+              <option value="redacao">Redação / Roteiro</option>
+              <option value="coord">Coordenação</option>
+            </select>
+        </div>
+      </div>
+      <div class="modal-footer border-top-0 pt-0">
+        <button class="btn btn-outline-secondary" onclick="closeModal('m-task')">Cancelar</button>
+        <button class="btn btn-danger" onclick="saveTask()">Criar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="m-ev-detail" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow" style="border-radius: 15px;">
+      <div class="modal-header border-bottom-0 pb-0">
+        <h5 class="modal-title fw-bold" id="evd-title">Evento</h5>
+        <button type="button" class="btn-close" onclick="closeModal('m-ev-detail')"></button>
+      </div>
+      <div class="modal-body" id="evd-body"></div>
+      <div class="modal-footer border-top-0 pt-0">
+        <button class="btn btn-outline-secondary" onclick="closeModal('m-ev-detail')">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="m-user" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow" style="border-radius: 15px;">
+      <div class="modal-header border-bottom-0 pb-0">
+        <h5 class="modal-title fw-bold">Criar Login</h5>
+        <button type="button" class="btn-close" onclick="closeModal('m-user')"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+            <label class="form-label text-muted small fw-medium mb-1">Nome Completo</label>
+            <input id="cu-name" type="text" class="form-control" placeholder="Nome do membro">
+        </div>
+        <div class="mb-3">
+            <label class="form-label text-muted small fw-medium mb-1">Email Institucional</label>
+            <input id="cu-email" type="email" class="form-control" placeholder="nome@aluno.ifnmg.edu.br">
+        </div>
+        <div class="mb-3">
+            <label class="form-label text-muted small fw-medium mb-1">Senha Temporária</label>
+            <input id="cu-pass" type="text" class="form-control" placeholder="Senha inicial">
+        </div>
+        <div class="mb-3">
+            <label class="form-label text-muted small fw-medium mb-1">Equipe</label>
+            <select id="cu-team" class="form-select">
+              <option value="video">Edição de Vídeo</option>
+              <option value="midia">Redes Sociais / Mídia</option>
+              <option value="foto">Fotografia</option>
+              <option value="entrevista">Entrevista / Reportagem</option>
+              <option value="redacao">Redação / Roteiro</option>
+              <option value="coord">Coordenação</option>
+            </select>
+        </div>
+        <div class="mb-2" id="cu-hier-wrap">
+            <label class="form-label text-muted small fw-medium mb-1">Nível de Acesso</label>
+            <select id="cu-hier" class="form-select">
+              <option value="membro">Membro / Aluno</option>
+              <option value="lider">Líder de Equipe</option>
+              <option value="professor">Professor</option>
+            </select>
+        </div>
+      </div>
+      <div class="modal-footer border-top-0 pt-0">
+        <button class="btn btn-outline-secondary" onclick="closeModal('m-user')">Cancelar</button>
+        <button class="btn btn-success" onclick="createUser()">Criar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// ═══════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════
+const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+const DEFAULT_TEAMS = {
+  video:      { name:'Edição de Vídeo',      color:'#6c3fc5', bg:'#f0ebff' },
+  midia:      { name:'Redes Sociais / Mídia', color:'#0ea5c4', bg:'#e8f7fb' },
+  foto:       { name:'Fotografia',            color:'#d97706', bg:'#fff8eb' },
+  entrevista: { name:'Entrevista / Rep.',      color:'#dc4c3e', bg:'#fdecea' },
+  redacao:    { name:'Redação / Roteiro',      color:'#2563eb', bg:'#eff3ff' },
+  coord:      { name:'Coordenação',            color:'#2f8f41', bg:'#e8f5eb' },
+};
+
+let TEAMS = JSON.parse(JSON.stringify(DEFAULT_TEAMS));
+
+const HIER_META = {
+  superadmin: { label:'Super Admin', cls:'hb-sa' },
+  professor:  { label:'Professor',   cls:'hb-pr' },
+  lider:      { label:'Líder',       cls:'hb-li' },
+  membro:     { label:'Membro',      cls:'hb-mb' },
+};
+
+// ═══════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════
+let users = [
+  { id:1, name:'Ana',       email:'ana@ifnmg.edu.br',       pass:'ana123',   team:'coord',      hier:'superadmin', status:'active' },
+  { id:2, name:'Montanari',   email:'montanari@ifnmg.edu.br', pass:'mont123',   team:'coord',      hier:'superadmin', status:'active' },
+  { id:3, name:'Prof. Souza', email:'souza@ifnmg.edu.br',     pass:'prof123',   team:'coord',      hier:'professor',  status:'active' },
+  { id:4, name:'Carlos Lima', email:'carlos@ifnmg.edu.br',    pass:'carlos123', team:'video',      hier:'lider',      status:'active' },
+  { id:5, name:'Bia Neves',   email:'bia@ifnmg.edu.br',       pass:'bia123',    team:'foto',       hier:'lider',      status:'active' },
+  { id:6, name:'Lucas Mota',  email:'lucas@ifnmg.edu.br',     pass:'lucas123',  team:'redacao',    hier:'membro',     status:'active' },
+  { id:7, name:'Fer Reis',    email:'fer@ifnmg.edu.br',       pass:'fer123',    team:'midia',      hier:'membro',     status:'active' },
+  { id:8, name:'Pedro Silva', email:'pedro@ifnmg.edu.br',     pass:'pedro123',  team:'entrevista', hier:'membro',     status:'active' },
+  { id:9, name:'Julia Castro',email:'julia@ifnmg.edu.br',     pass:'julia123',  team:'foto',       hier:'membro',     status:'active' },
+];
+
+let events = [
+  { id:1, title:'Feira de Ciências', date:'2026-04-15', desc:'Cobertura das apresentações no pátio central.', teams:['foto','redacao','video'] },
+  { id:2, title:'Palestra sobre IA',  date:'2026-04-22', desc:'Gravar palestra do Prof. Alves — Bloco B.',    teams:['video','entrevista'] },
+  { id:3, title:'Reunião de Pauta',   date:'2026-04-08', desc:'Sala 12, 14h. Definir pautas do mês.',         teams:['coord'] },
+  { id:4, title:'Visita Técnica',     date:'2026-04-29', desc:'Cobertura da visita ao campus Almenara.',       teams:['foto','midia'] },
+];
+
+let tasks = [
+  { id:1, title:'Editar teaser Feira',    desc:'Vídeo de 30s para o Instagram.',           team:'video',      status:'todo',  createdBy:'Carlos Lima' },
+  { id:2, title:'Agendar posts semana',   desc:'Cronograma semanal de publicações.',        team:'midia',      status:'doing', createdBy:'Prof. Souza' },
+  { id:3, title:'Artigo sobre gincana',   desc:'Texto de 500 palavras para o site.',        team:'redacao',    status:'done',  createdBy:'Prof. Souza' },
+  { id:4, title:'Fotos do laboratório',   desc:'Registro das aulas práticas de química.',   team:'foto',       status:'todo',  createdBy:'Bia Neves' },
+  { id:5, title:'Entrevista c/ diretora', desc:'Pauta: projetos para o 2º semestre.',       team:'entrevista', status:'todo',  createdBy:'Prof. Souza' },
+  { id:6, title:'Roteiro ep. 3',          desc:'Roteiro do terceiro episódio do podcast.',  team:'redacao',    status:'doing', createdBy:'Lucas Mota' },
+];
+
+let notifs = [
+  { id:1, title:'Novo evento criado',  text:'Feira de Ciências adicionada para 15/04.',               time:'Hoje, 09:12', team:'coord',   read:false },
+  { id:2, title:'Demanda atribuída',   text:'Editar teaser Feira foi atribuída à Edição de Vídeo.',  time:'Ontem, 17:30',team:'video',   read:false },
+  { id:3, title:'Tarefa concluída',    text:'Artigo sobre gincana foi marcado como concluído.',       time:'Ontem, 14:00',team:'redacao', read:true  },
+];
+
+// ═══════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════
+let CU = null; 
+let calDate   = new Date(2026, 3, 1);
+let myCalDate = new Date(2026, 3, 1);
+let loginMode = true;
+let taskFilter = null; 
+
+// ═══════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════
+function toggleMode() {
+  loginMode = !loginMode;
+  document.getElementById('auth-title').textContent = loginMode ? 'Faça login para continuar' : 'Crie sua conta';
+  document.getElementById('auth-btn').textContent   = loginMode ? 'Entrar' : 'Cadastrar';
+  document.getElementById('at-text').textContent    = loginMode ? 'Não faz parte do jornal?' : 'Já tem uma conta?';
+  document.getElementById('at-btn').textContent     = loginMode ? 'Faça login' : 'Cadastre-se';
+  document.getElementById('reg-fields').style.display = loginMode ? 'none' : 'block';
+}
+
+function doAuth() {
+  const email = document.getElementById('a-email').value.trim();
+  const pass  = document.getElementById('a-pass').value;
+  
+  if (loginMode) {
+    const u = users.find(u => u.email===email && u.pass===pass);
+    if (!u) return toast('Email ou senha incorretos.');
+    if (u.status==='suspended') return toast('Acesso suspenso. Contate a coordenação.');
+    startSession(u);
+  } else {
+    const name = document.getElementById('a-name').value.trim();
+    const team = document.getElementById('a-role').value;
+    
+    if (!name || !email || !pass) {
+      return toast('Preencha todos os campos.');
+    }
+    
+    // valida domínio obrigatório
+    if (!email.endsWith('@aluno.ifnmg.edu.br')) {
+      return toast('Use um email institucional válido @aluno.ifnmg.edu.br');
+    }
+    
+    if (users.find(u=>u.email===email)) return toast('Email já cadastrado.');
+    
+    const nu = {id:Date.now(),name,email,pass,team,hier:'membro',status:'active'};
+    users.push(nu);
+    
+    // REQUISITO: Não logar diretamente, mostrar aviso e voltar para tela de login
+    toast('Cadastro realizado com sucesso! Faça login para continuar.');
+    document.getElementById('a-pass').value = ''; // limpa a senha por segurança
+    toggleMode(); // Retorna para o form de login
+  }
+}
+
+function startSession(u) {
+  CU = u;
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').classList.add('active');
+  initApp();
+}
+
+function logout() {
+  CU=null;
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('a-email').value='';
+  document.getElementById('a-pass').value='';
+}
+
+// ═══════════════════════════════════════
+//  PERMISSIONS
+// ═══════════════════════════════════════
+function can(act) {
+  const h=CU.hier;
+  const p={
+    createEvent:  ['superadmin','professor','lider'],
+    createTask:   ['superadmin','professor','lider'],
+    moveTask:     ['superadmin','professor','lider'],
+    deleteTask:   ['superadmin','professor'],
+    manageUsers:  ['superadmin','professor'],
+    suspendUser:  ['superadmin'],
+    seeAllTasks:  ['superadmin','professor','lider'],
+    seeAllEvents: ['superadmin','professor','lider','membro'],
+    changeColors: ['superadmin','professor'],
+  };
+  return (p[act]||[]).includes(h);
+}
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+function initApp() {
+  buildNav();
+  updateSbUser();
+  taskFilter = can('seeAllTasks') ? 'all' : CU.team;
+  switchView('calendar');
+  updateNotifDot();
+}
+
+const NAV = [
+  {id:'calendar',  label:'Agenda Geral',  icon:'<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'},
+  {id:'my-cal',    label:'Minha Agenda',  icon:'<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><circle cx="12" cy="15" r="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'},
+  {id:'tasks',     label:'Demandas',      icon:'<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>'},
+  {id:'team',      label:'Equipe',        icon:'<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'},
+  {id:'notifications',label:'Notificações',icon:'<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'},
+  {id:'admin',     label:'Administração', icon:'<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', restrict:'manageUsers'},
+];
+
+function buildNav() {
+  const nav=document.getElementById('sb-nav');
+  nav.innerHTML='<div class="nav-sect">Menu</div>';
+  NAV.forEach(item=>{
+    if(item.restrict && !can(item.restrict)) return;
+    const b=document.createElement('button');
+    b.className='nav-item'; b.id='nav-'+item.id;
+    b.innerHTML=item.icon+' '+item.label;
+    b.onclick=()=>switchView(item.id);
+    nav.appendChild(b);
+  });
+}
+
+function updateSbUser() {
+  const t=TEAMS[CU.team]||{color:'#2f8f41',bg:'#e8f5eb'};
+  const h=HIER_META[CU.hier]||{label:'Membro',cls:'hb-mb'};
+  const av=document.getElementById('sb-av');
+  av.textContent=CU.name.charAt(0).toUpperCase();
+  av.style.background=t.color;
+  document.getElementById('sb-name').textContent=CU.name;
+  const rb=document.getElementById('sb-role');
+  rb.textContent=h.label;
+  rb.style.cssText=`background:${t.bg};color:${t.color};display:inline-block;font-size:.62rem;padding:1px 6px;border-radius:4px;font-weight:500;margin-top:2px`;
+}
+
+// ═══════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════
+const VIEW_TITLES={calendar:'Agenda Geral','my-cal':'Minha Agenda',tasks:'Demandas',team:'Equipe',notifications:'Notificações',admin:'Administração',settings:'Configurações'};
+
+function switchView(id) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item[id]').forEach(b=>b.classList.remove('active'));
+  const vEl=document.getElementById('view-'+id);
+  if(vEl) vEl.classList.add('active');
+  const nEl=document.getElementById('nav-'+id);
+  if(nEl) nEl.classList.add('active');
+  document.getElementById('topbar-title').textContent=VIEW_TITLES[id]||'';
+  closeSidebar();
+  
+  const aev=document.getElementById('btn-add-ev');
+  const atk=document.getElementById('btn-add-task');
+  if(aev) aev.style.display=(id==='calendar'&&can('createEvent'))?'inline-flex':'none';
+  if(atk) atk.style.display=(id==='tasks'&&can('createTask'))?'inline-flex':'none';
+  
+  if(id==='calendar') renderCal();
+  if(id==='my-cal')   renderMyCal();
+  if(id==='tasks')    renderTasks();
+  if(id==='team')     renderTeam();
+  if(id==='notifications') renderNotifs();
+  if(id==='admin')    renderAdmin();
+  if(id==='settings') renderSettings();
+}
+
+// ═══════════════════════════════════════
+//  CALENDAR
+// ═══════════════════════════════════════
+function renderCal() { renderCalInto('cal-grid','cal-lbl',calDate,events); }
+function chMonth(d){ calDate.setMonth(calDate.getMonth()+d); renderCal(); }
+
+function renderMyCal() {
+  document.getElementById('my-cal-sub').textContent='Eventos da equipe: '+(TEAMS[CU.team]?.name||'');
+  const myEvs=events.filter(e=>e.teams.includes(CU.team));
+  renderCalInto('my-cal-grid','my-cal-lbl',myCalDate,myEvs);
+}
+function chMonthMy(d){ myCalDate.setMonth(myCalDate.getMonth()+d); renderMyCal(); }
+
+function renderCalInto(gid,lid,date,evList) {
+  const g=document.getElementById(gid);
+  const l=document.getElementById(lid);
+  const y=date.getFullYear(),m=date.getMonth();
+  l.textContent=MONTHS[m]+' '+y;
+  const today=new Date();
+  const first=new Date(y,m,1).getDay();
+  const days=new Date(y,m+1,0).getDate();
+  let html='';
+  for(let i=0;i<first;i++) html+='<div class="cal-cell other"></div>';
+  for(let d=1;d<=days;d++){
+    const ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const isTod=d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
+    const dayEvs=evList.filter(e=>e.date===ds);
+    const numH=isTod?`<span class="day-num today">${d}</span>`:`<span class="day-num">${d}</span>`;
+    const chips=dayEvs.map(ev=>{
+      const col=TEAMS[ev.teams[0]]?.color||'var(--green)';
+      return `<div class="ev-chip" style="background:${col}" onclick="showEvDetail(${ev.id})">${ev.title}</div>`;
+    }).join('');
+    html+=`<div class="cal-cell">${numH}${chips}</div>`;
+  }
+  const total=first+days;
+  const rem=(7-(total%7))%7;
+  for(let i=0;i<rem;i++) html+='<div class="cal-cell other"></div>';
+  g.innerHTML=html;
+}
+
+function showEvDetail(id) {
+  const ev=events.find(e=>e.id===id); if(!ev) return;
+  document.getElementById('evd-title').textContent=ev.title;
+  const d=new Date(ev.date+'T12:00:00');
+  const tags=ev.teams.map(t=>{const i=TEAMS[t]; return `<span style="display:inline-flex;align-items:center;gap:3px;font-size:.72rem;font-weight:500;padding:2px 8px;border-radius:4px;background:${i.bg};color:${i.color}">${i.name}</span>`;}).join('');
+  document.getElementById('evd-body').innerHTML=`
+    <p style="font-size:.78rem;color:var(--muted);margin-bottom:.5rem">📅 ${d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}</p>
+    <p style="font-size:.87rem;margin-bottom:1rem;line-height:1.5">${ev.desc}</p>
+    <p style="font-size:.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.45rem">Equipes</p>
+    <div style="display:flex;flex-wrap:wrap;gap:.35rem">${tags}</div>`;
+  openModal('m-ev-detail');
+}
+
+// ═══════════════════════════════════════
+//  TASKS
+// ═══════════════════════════════════════
+function renderTasks() {
+  const fb=document.getElementById('task-filter-bar');
+  const tsSub=document.getElementById('tasks-sub');
+
+  if(!can('seeAllTasks')) {
+    fb.style.display='none';
+    tsSub.textContent='Tarefas da equipe: '+(TEAMS[CU.team]?.name||'');
+    const myTasks=tasks.filter(t=>t.team===CU.team);
+    renderKanban(myTasks, false);
+    return;
+  }
+
+  if(CU.hier==='lider') {
+    fb.style.display='none';
+    tsSub.textContent='Tarefas da equipe: '+(TEAMS[CU.team]?.name||'');
+    const myTasks=tasks.filter(t=>t.team===CU.team);
+    renderKanban(myTasks, true);
+    return;
+  }
+
+  fb.style.display='flex';
+  tsSub.textContent=taskFilter==='all'?'Todas as equipes':(TEAMS[taskFilter]?.name||'');
+  const filters=[{key:'all',label:'Todos'}, ...Object.keys(TEAMS).map(k=>({key:k,label:TEAMS[k].name}))];
+  fb.innerHTML=filters.map(f=>{
+    const isA=taskFilter===f.key;
+    const tc=TEAMS[f.key];
+    if(isA&&tc) return `<button onclick="setFilter('${f.key}')" class="btn btn-sm" style="border:1.5px solid ${tc.color};background:${tc.bg};color:${tc.color};">${f.label}</button>`;
+    if(isA) return `<button onclick="setFilter('${f.key}')" class="btn btn-dark btn-sm">${f.label}</button>`;
+    return `<button onclick="setFilter('${f.key}')" class="btn btn-outline-secondary btn-sm bg-white">${f.label}</button>`;
+  }).join('');
+  const filtered=taskFilter==='all'?tasks:tasks.filter(t=>t.team===taskFilter);
+  renderKanban(filtered, true);
+}
+
+function renderKanban(list, editable) {
+  ['todo','doing','done'].forEach(status=>{
+    const col=document.getElementById('col-'+status);
+    const cnt=document.getElementById('cnt-'+status);
+    const items=list.filter(t=>t.status===status);
+    cnt.textContent=items.length;
+    if(!items.length){ col.innerHTML='<div class="empty"><p>Nenhuma tarefa</p></div>'; return; }
+    col.innerHTML=items.map(task=>{
+      const info=TEAMS[task.team]||{name:'Geral',color:'#888',bg:'#eee'};
+      let acts='';
+      if(editable){
+        if(status!=='todo') acts+=`<button class="tmv" onclick="mvTask(${task.id},'${status==='done'?'doing':'todo'}')">← Voltar</button>`;
+        if(status!=='done') acts+=`<button class="tmv" onclick="mvTask(${task.id},'${status==='todo'?'doing':'done'}')">Avançar →</button>`;
+        if(can('deleteTask')) acts+=`<button class="tmv tdel" onclick="delTask(${task.id})">Excluir</button>`;
+      }
+      return `<div class="task-card">
+        <div class="task-badge" style="background:${info.bg};color:${info.color}">${info.name}</div>
+        <h4>${task.title}</h4>
+        <p>${task.desc}</p>
+        ${acts?`<div class="task-actions">${acts}</div>`:''}
+      </div>`;
+    }).join('');
+  });
+}
+
+function setFilter(k){ taskFilter=k; renderTasks(); }
+function mvTask(id,status){
+  const t=tasks.find(t=>t.id===id); if(!t) return;
+  t.status=status; renderTasks();
+  addNotif('Demanda movida',`"${t.title}" → ${status==='doing'?'Em Andamento':status==='done'?'Concluído':'A Fazer'}`,t.team);
+}
+function delTask(id){ tasks=tasks.filter(t=>t.id!==id); renderTasks(); toast('Demanda removida.'); }
+
+// ═══════════════════════════════════════
+//  TEAM
+// ═══════════════════════════════════════
+function renderTeam() {
+  const g=document.getElementById('team-grid');
+  g.innerHTML=users.filter(u=>u.status==='active').map(u=>{
+    const t=TEAMS[u.team]||{color:'#888',bg:'#eee',name:'?'};
+    const h=HIER_META[u.hier]||{label:'Membro',cls:'hb-mb'};
+    return `<div class="member-card">
+      <div class="m-avatar" style="background:${t.color}">${u.name.charAt(0)}</div>
+      <div>
+        <div class="m-name">${u.name} <span class="hier-badge ${h.cls}">${h.label}</span></div>
+        <div class="m-email">${u.email}</div>
+        <div class="m-role" style="background:${t.bg};color:${t.color}">${t.name}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+//  NOTIFICATIONS
+// ═══════════════════════════════════════
+function renderNotifs() {
+  updateNotifDot();
+  const el=document.getElementById('notif-list');
+  if(!notifs.length){el.innerHTML='<div class="empty"><p>Nenhuma notificação</p></div>';return;}
+  el.innerHTML=notifs.map(n=>{
+    const t=TEAMS[n.team]||{color:'var(--green)',bg:'var(--green-light)'};
+    return `<div class="notif-item ${n.read?'':'unread'}" onclick="readNotif(${n.id})">
+      <div class="notif-icon" style="background:${t.bg};color:${t.color}">📣</div>
+      <div>
+        <div class="notif-title">${n.title}</div>
+        <div class="notif-text">${n.text}</div>
+        <div class="notif-time">${n.time}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function readNotif(id){const n=notifs.find(n=>n.id===id);if(n){n.read=true;renderNotifs();}}
+function markAllRead(){notifs.forEach(n=>n.read=true);renderNotifs();toast('Todas lidas.');}
+function addNotif(title,text,team){notifs.unshift({id:Date.now(),title,text,time:'Agora',team,read:false});updateNotifDot();}
+function updateNotifDot(){const dot=document.getElementById('notif-dot');dot.style.display=notifs.filter(n=>!n.read).length?'block':'none';}
+
+// ═══════════════════════════════════════
+//  ADMIN
+// ═══════════════════════════════════════
+function renderAdmin() {
+  document.getElementById('admin-cnt').textContent=users.length+' usuários';
+  const hierSel=document.getElementById('cu-hier');
+  if(CU.hier==='professor') {
+    Array.from(hierSel.options).forEach(o=>{ if(o.value==='professor') o.style.display='none'; });
+  }
+  document.getElementById('admin-tbody').innerHTML=users.map(u=>{
+    const t=TEAMS[u.team]||{name:'?',color:'#888',bg:'#eee'};
+    const h=HIER_META[u.hier]||{label:'Membro',cls:'hb-mb'};
+    const isMe=u.id===CU.id;
+    const sp=u.status==='active'?'<span class="s-pill s-active">Ativo</span>':'<span class="s-pill s-suspended">Suspenso</span>';
+    const suspBtn=can('suspendUser')&&!isMe?`<button class="btn btn-sm btn-outline-${u.status==='active'?'danger':'success'}" onclick="toggleStatus(${u.id})">${u.status==='active'?'Suspender':'Reativar'}</button>`:'';
+    return `<tr>
+      <td><strong>${u.name}</strong>${isMe?' <span style="font-size:.68rem;color:var(--muted)">(você)</span>':''}</td>
+      <td style="color:var(--muted);font-size:.85rem">${u.email}</td>
+      <td><span style="font-size:.72rem;font-weight:500;padding:2px 7px;border-radius:4px;background:${t.bg};color:${t.color}">${t.name}</span></td>
+      <td><span class="hier-badge ${h.cls}">${h.label}</span></td>
+      <td>${sp}</td>
+      <td>${suspBtn}</td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleStatus(id) {
+  const u=users.find(u=>u.id===id); if(!u) return;
+  u.status=u.status==='active'?'suspended':'active';
+  toast(u.name+' '+(u.status==='active'?'reativado.':'suspenso.'));
+  addNotif('Acesso atualizado',`${u.name} foi ${u.status==='active'?'reativado':'suspenso'}.`,'coord');
+  renderAdmin(); renderTeam();
+}
+
+function createUser() {
+  const name=document.getElementById('cu-name').value.trim();
+  const email=document.getElementById('cu-email').value.trim();
+  const pass=document.getElementById('cu-pass').value;
+  const team=document.getElementById('cu-team').value;
+  let hier=document.getElementById('cu-hier').value;
+  if(CU.hier==='professor'&&hier==='professor') hier='membro';
+  if(!name||!email||!pass) return toast('Preencha todos os campos.');
+  if(users.find(u=>u.email===email)) return toast('Email já cadastrado.');
+  users.push({id:Date.now(),name,email,pass,team,hier,status:'active'});
+  closeModal('m-user');
+  ['cu-name','cu-email','cu-pass'].forEach(id=>document.getElementById(id).value='');
+  toast('Login criado para '+name+'!');
+  addNotif('Novo membro',name+' entrou para a equipe de '+(TEAMS[team]?.name||''),team);
+  renderAdmin(); renderTeam();
+}
+
+// ═══════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════
+function renderSettings() {
+  const card=document.getElementById('team-color-card');
+  if(can('changeColors')) {
+    card.style.display='block';
+    const rows=document.getElementById('team-color-rows');
+    rows.innerHTML=Object.entries(TEAMS).map(([key,info])=>`
+      <div class="color-row">
+        <label>${info.name}</label>
+        <div class="color-picker-wrap">
+          <input type="color" id="cp-${key}" value="${info.color}" oninput="previewColor('${key}',this.value)">
+          <div class="color-preview" id="cprev-${key}" style="background:${info.color}">${key.charAt(0).toUpperCase()}</div>
+        </div>
+      </div>`).join('');
+  } else {
+    card.style.display='none';
+  }
+}
+
+function previewColor(key,val) {
+  document.getElementById('cprev-'+key).style.background=val;
+}
+
+function applyTeamColors() {
+  Object.keys(TEAMS).forEach(key=>{
+    const inp=document.getElementById('cp-'+key);
+    if(inp){
+      TEAMS[key].color=inp.value;
+      TEAMS[key].bg=hexToLight(inp.value);
+    }
+  });
+  updateSbUser();
+  toast('Cores das equipes atualizadas!');
+}
+
+function resetTeamColors() {
+  TEAMS=JSON.parse(JSON.stringify(DEFAULT_TEAMS));
+  renderSettings();
+  updateSbUser();
+  toast('Cores restauradas para o padrão.');
+}
+
+function hexToLight(hex) {
+  const r=parseInt(hex.slice(1,3),16);
+  const g=parseInt(hex.slice(3,5),16);
+  const b=parseInt(hex.slice(5,7),16);
+  const lr=Math.round(r+(255-r)*.85);
+  const lg=Math.round(g+(255-g)*.85);
+  const lb=Math.round(b+(255-b)*.85);
+  return `rgb(${lr},${lg},${lb})`;
+}
+
+// ═══════════════════════════════════════
+//  MODALS (ATUALIZADO PARA BOOTSTRAP API)
+// ═══════════════════════════════════════
+function openModal(id) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  const bsModal = bootstrap.Modal.getOrCreateInstance(el);
+  bsModal.show();
+  if(id==='m-event') buildEvChecks();
+}
+
+function closeModal(id){ 
+  const el = document.getElementById(id);
+  if(!el) return;
+  const bsModal = bootstrap.Modal.getInstance(el);
+  if(bsModal) bsModal.hide();
+}
+
+function buildEvChecks() {
+  document.getElementById('ev-checks').innerHTML=Object.entries(TEAMS).map(([k,v])=>`
+    <label class="tc-lbl"><input type="checkbox" value="${k}"><span class="tc-dot" style="background:${v.color}"></span>${v.name}</label>`).join('');
+}
+
+function saveEvent() {
+  const title=document.getElementById('ev-title').value.trim();
+  const date=document.getElementById('ev-date').value;
+  const desc=document.getElementById('ev-desc').value.trim();
+  const teams=Array.from(document.querySelectorAll('#ev-checks input:checked')).map(i=>i.value);
+  if(!title||!date) return toast('Preencha título e data.');
+  events.push({id:Date.now(),title,date,desc,teams});
+  closeModal('m-event');
+  ['ev-title','ev-date','ev-desc'].forEach(id=>document.getElementById(id).value='');
+  toast('Evento criado!');
+  addNotif('Novo evento',title+' adicionado para '+date.split('-').reverse().join('/')+'.',teams[0]||'coord');
+  renderCal();
+}
+
+function saveTask() {
+  const title=document.getElementById('tk-title').value.trim();
+  const desc=document.getElementById('tk-desc').value.trim();
+  const team=document.getElementById('tk-team').value;
+  if(!title) return toast('Informe o título da demanda.');
+  tasks.push({id:Date.now(),title,desc,team,status:'todo',createdBy:CU.name});
+  closeModal('m-task');
+  ['tk-title','tk-desc'].forEach(id=>document.getElementById(id).value='');
+  toast('Demanda criada!');
+  addNotif('Nova demanda',`"${title}" atribuída à equipe de ${TEAMS[team]?.name}.`,team);
+  renderTasks();
+}
+
+// ═══════════════════════════════════════
+//  SEARCH
+// ═══════════════════════════════════════
+function doSearch(q) {
+  if(!q.trim()) return;
+  const ql=q.toLowerCase();
+  const found=[
+    ...events.filter(e=>e.title.toLowerCase().includes(ql)).map(e=>'Evento: '+e.title),
+    ...tasks.filter(t=>t.title.toLowerCase().includes(ql)&&(can('seeAllTasks')||t.team===CU.team)).map(t=>'Demanda: '+t.title),
+    ...users.filter(u=>u.name.toLowerCase().includes(ql)).map(u=>'Membro: '+u.name),
+  ];
+  if(found.length) toast(found.slice(0,2).join(' | ')+(found.length>2?` +${found.length-2}`:''));
+}
+
+// ═══════════════════════════════════════
+//  SIDEBAR (mobile)
+// ═══════════════════════════════════════
+function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sb-overlay').classList.add('open');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-overlay').classList.remove('open');}
+
+// ═══════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════
+let tTimer;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tTimer);tTimer=setTimeout(()=>t.classList.remove('show'),3000);}
+</script>
+</body>
+</html>
